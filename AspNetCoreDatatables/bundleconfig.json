@@ -11,6 +11,7 @@
   {
     "outputFileName": "wwwroot/js/site.min.js",
     "inputFiles": [
+      "node_modules/datatables/media/js/jquery.dataTables.js",
       "wwwroot/js/site.js"
     ],
     // Optionally specify minification options
@@ -19,6 +20,6 @@
       "renameLocals": true
     },
     // Optionally generate .map file
-    "sourceMap": false
+    "sourceMap": true
   }
 ]

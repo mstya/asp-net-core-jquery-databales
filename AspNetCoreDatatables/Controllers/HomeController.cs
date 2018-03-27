@@ -8,9 +8,29 @@ using AspNetCoreDatatables.Models;
 
 namespace AspNetCoreDatatables.Controllers
 {
+    public class SearchViewModel
+    {
+        public string Value { get; set; }
+    }
+
+    public class DatatablesModel
+    {
+        public int Page { get; set; }
+
+        public string Draw { get; set; }
+
+        public int Start { get; set; }
+
+        public int Length { get; set; }
+
+        //public SearchViewModel Search { get; set; }
+        [FromQuery(Name = "search[value]")]
+        public string Search { get; set; }
+    }
+
     public class HomeController : Controller
     {
-        private UserContext context;
+        private readonly UserContext context;
 
         public HomeController(UserContext context)
         {
@@ -22,9 +42,25 @@ namespace AspNetCoreDatatables.Controllers
             return View();
         }
 
-        public IActionResult GetUsers()
+        public IActionResult GetUsers([FromQuery]DatatablesModel model)
         {
-            return this.Ok(this.context.Users.ToList());
+            var count = this.context.Users.Count();
+            var usersQuery = this.context.Users.AsQueryable();
+            if (!string.IsNullOrEmpty(model.Search))
+            {
+                usersQuery = usersQuery.Where(x =>
+                    string.Concat(x.FirstName, " ", x.LastName).Contains(model.Search));
+            }
+
+            var users = usersQuery.Skip(model.Start).Take(10).ToList();
+
+            return Ok(new
+            {
+                draw = model.Draw,
+                data = users,
+                recordsFiltered = count,
+                recordsTotal = count
+            });
         }
 
         public IActionResult About()
